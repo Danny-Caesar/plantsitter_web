@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import pickle
 
+FILENAME = "plant_data"
 app = FastAPI()
 
 class PlantStatusData(BaseModel):
@@ -9,30 +11,33 @@ class PlantStatusData(BaseModel):
     humidity: float = None
     illuminance: float = None
 
-data =  PlantStatusData()
-
 @app.get("/")
 async def root():
-    if data is None:
-        return {"message": "No data updated"}
+    with open(FILENAME, 'rb') as f:
+        return {"soil_moisture": pickle.load(f),
+                "temperature": pickle.load(f),
+                "humidity": pickle.load(f),
+                "illuminance": pickle.load(f),
+                }
 
-    return {"soil_moisture": data.soil_moisture,
-            "temperature": data.temperature,
-            "humidity": data.humidity,
-            "illuminance": data.illuminance}
 
 @app.post("/update")
 async def update(psd: PlantStatusData):
-    data.soil_moisture = psd.soil_moisture
-    data.temperature = psd.temperature
-    data.humidity = psd.humidity
-    data.illuminance = psd.illuminance
+    with open(FILENAME, 'wb') as f:
+        pickle.dump(psd.soil_moisture, f)
+        pickle.dump(psd.temperature, f)
+        pickle.dump(psd.humidity, f)
+        pickle.dump(psd.illuminance, f)
 
     return {"success": True, "message": "Data updated"}
 
 @app.get("/update")
 async def update():
-    if data is None:
-        return {"success": False, "message": "No data updated"}
+    with open(FILENAME, 'rb') as f:
+        data =  {"soil_moisture": pickle.load(f),
+                "temperature": pickle.load(f),
+                "humidity": pickle.load(f),
+                "illuminance": pickle.load(f),
+                }
 
     return {"success": True, "data": data}
