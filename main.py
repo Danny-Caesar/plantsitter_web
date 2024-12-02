@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import os
 import pickle
 
 FILENAME = "plant_data.p"
+os.chmod(FILENAME, 0o777)
 app = FastAPI()
 
 class PlantStatusData(BaseModel):
