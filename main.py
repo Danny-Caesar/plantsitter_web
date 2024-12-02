@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import pickle
 
-FILENAME = "plant_data"
+FILENAME = "plant_data.p"
 app = FastAPI()
 
 class PlantStatusData(BaseModel):
