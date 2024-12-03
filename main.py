@@ -27,15 +27,15 @@ class PlantStatusData(BaseModel):
 async def startup():
     app.state.data = PlantStatusData()
 
-    with open(KEYFILE, "wb") as f:
+    with open(KEYFILE, "w") as f:
         f.write(key)
         f.close()
 
-    with open(CRTFILE, "wb") as f:
+    with open(CRTFILE, "w") as f:
         f.write(crt)
         f.close()
 
-    context.load_cert_chain(CRTFILE, KEYFILE)
+    context.load_cert_chain(certfile=CRTFILE, keyfile=KEYFILE)
 
 @app.get("/")
 async def root():
