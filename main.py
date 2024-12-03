@@ -9,11 +9,12 @@ app = FastAPI()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+KEYFILE = "key.pem"
+CRTFILE = "crt.pem"
 key = os.environ["SERVER_KEY"]
 crt = os.environ["SERVER_CRT"]
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain(crt, key)
 
 class PlantStatusData(BaseModel):
     soil_moisture: float = None
@@ -25,10 +26,20 @@ class PlantStatusData(BaseModel):
 @app.on_event("startup")
 async def startup():
     app.state.data = PlantStatusData()
+
+    with open(KEYFILE, "wb") as f:
+        f.write(key)
+        f.close()
+
+    with open(CRTFILE, "wb") as f:
+        f.write(crt)
+        f.close()
+
+    context.load_cert_chain(CRTFILE, KEYFILE)
+
 @app.get("/")
 async def root():
     return app.state.data
-
 
 @app.post("/update")
 async def update(psd: PlantStatusData):
